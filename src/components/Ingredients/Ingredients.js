@@ -5,14 +5,13 @@ import IngredientList from './IngredientList';
 import Search from './Search';
 
 const Ingredients = () => {
-  const baseFetchURL = 'https://react-hooks-module-2ba54-default-rtdb.firebaseio.com'
+  const baseFetchURL = 'https://react-hooks-module-2ba54-default-rtdb.firebaseio.com';
   const [ userIngredients, setUserIngredients ] = useState([]);
 
   useEffect(() => {
     fetch(`${baseFetchURL}/ingredients.json`)
     .then(response => response.json())
     .then(data => {
-      console.log(data);
       const loadedIngredients = [];
       for (const key in data) {
         loadedIngredients.push({
@@ -47,13 +46,22 @@ const Ingredients = () => {
     setUserIngredients(prevIngredients => prevIngredients.filter(ing => ing.id !== id));
   }
 
+  const filteredIngredientsHandler = filteredIngredients => {
+    setUserIngredients(filteredIngredients);
+  }
+
   return (
     <div className="App">
       <IngredientForm onAddIngredient={addIngredientHandler} />
 
       <section>
-        <Search />
-        <IngredientList ingredients={userIngredients} onRemoveItem={removeIngredientHandler} />
+        <Search 
+          onLoadIngredients={filteredIngredientsHandler}
+        />
+        <IngredientList 
+          ingredients={userIngredients} 
+          onRemoveItem={removeIngredientHandler} 
+        />
       </section>
     </div>
   );
