@@ -1,13 +1,26 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useReducer, useState, useEffect, useCallback } from 'react';
 
 import IngredientForm from './IngredientForm';
 import IngredientList from './IngredientList';
 import ErrorModal from '../UI/ErrorModal';
 import Search from './Search';
 
+const ingredientReducer = (currentIngredients, action) => {
+  switch(action.type) {
+    case 'SET':
+      return action.ingredients;
+    case 'ADD':
+      return [...currentIngredients, action.ingredient];
+    case 'DELETE':
+      return currentIngredients.filter(ing => ing.id !== action.id);
+    default:
+      throw new Error('Should not get here!');
+  }
+}
+
 const Ingredients = () => {
   const baseFetchURL = 'https://react-hooks-module-2ba54-default-rtdb.firebaseio.com';
-  const [ userIngredients, setUserIngredients ] = useState([]);
+  const [ userIngredients, dispatch ] = useReducer(ingredientReducer, []);
   const [ isLoading, setIsLoading] = useState(false);
   const [ error, setError ] = useState();
 
@@ -27,7 +40,7 @@ const Ingredients = () => {
       setIsLoading(false);
       return response.json();
     }).then(data => {
-      setUserIngredients(prevIngredients => [...prevIngredients, { id: data.name, ...ingredient }]);
+      dispatch({type: 'ADD', ingredient: { id: data.name, ...ingredient }})
     }).catch(error => {
       setError('Something went wrong!');
       setIsLoading(false);
@@ -43,7 +56,7 @@ const Ingredients = () => {
       }
     }).then(res => {
       setIsLoading(false);
-      setUserIngredients(prevIngredients => prevIngredients.filter(ing => ing.id !== id));
+      dispatch({type: 'DELETE', id});
     }).catch(error => {
       setError('Something went wrong!');
       setIsLoading(false);
@@ -51,7 +64,8 @@ const Ingredients = () => {
   }
 
   const filteredIngredientsHandler = useCallback(filteredIngredients => {
-    setUserIngredients(filteredIngredients);
+    dispatch({type: 'SET', ingredients: filteredIngredients});
+    //setUserIngredients(filteredIngredients);
   }, []);
 
   const clearError = () => {
