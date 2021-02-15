@@ -27,7 +27,14 @@ const Ingredients = () => {
   };
 
   const removeIngredientHandler = id => {
-    setUserIngredients(prevIngredients => prevIngredients.filter(ing => ing.id !== id));
+    fetch(`${baseFetchURL}/ingredients/${id}.json`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(res => {
+      setUserIngredients(prevIngredients => prevIngredients.filter(ing => ing.id !== id));
+    });
   }
 
   const filteredIngredientsHandler = useCallback(filteredIngredients => {
