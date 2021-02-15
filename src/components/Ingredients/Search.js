@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 import Card from '../UI/Card';
 import './Search.css';
@@ -10,7 +10,7 @@ const Search = React.memo(props => {
   const inputRef = useRef();
   
   useEffect(() => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       if (filter === inputRef.current.value){
         const query = filter.length === 0 ? '' : `?orderBy="title"&equalTo="${filter}"`;
     
@@ -29,6 +29,10 @@ const Search = React.memo(props => {
         });
       }
     }, 500);
+
+    return () => {
+      clearTimeout(timer);
+    };
   }, [filter, onLoadIngredients]);
 
   return (
