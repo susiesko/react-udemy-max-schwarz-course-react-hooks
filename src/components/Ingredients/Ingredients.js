@@ -21,9 +21,9 @@ const Ingredients = () => {
           amount: data[key].amount
         })
       }
-      //setUserIngredients(loadedIngredients);
+      setUserIngredients(loadedIngredients);
     });
-  }, [userIngredients]);
+  }, []);
 
   useEffect(() => {
     console.log('rendering ingredients', userIngredients);
