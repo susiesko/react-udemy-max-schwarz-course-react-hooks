@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 import Card from '../UI/Card';
 import './Search.css';
@@ -10,6 +10,7 @@ const Search = React.memo(props => {
   
   useEffect(() => {
     const query = filter.length === 0 ? '' : `?orderBy="title"&equalTo="${filter}"`;
+    
     fetch(`${baseFetchURL}/ingredients.json${query}`)
     .then(response => response.json())
     .then(data => {
@@ -21,7 +22,7 @@ const Search = React.memo(props => {
           amount: data[key].amount
         })
       }
-      props.onLoadIngredients(loadedIngredients);
+      onLoadIngredients(loadedIngredients);
     });
   }, [filter, onLoadIngredients]);
 
