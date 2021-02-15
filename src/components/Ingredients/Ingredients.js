@@ -12,6 +12,7 @@ const Ingredients = () => {
     fetch(`${baseFetchURL}/ingredients.json`)
     .then(response => response.json())
     .then(data => {
+      console.log(data);
       const loadedIngredients = [];
       for (const key in data) {
         loadedIngredients.push({
@@ -22,7 +23,11 @@ const Ingredients = () => {
       }
       //setUserIngredients(loadedIngredients);
     });
-  }, []);
+  }, [userIngredients]);
+
+  useEffect(() => {
+    console.log('rendering ingredients', userIngredients);
+  }, [userIngredients]);
 
   const addIngredientHandler = ingredient => {
     fetch(`${baseFetchURL}/ingredients.json`, {
