@@ -1,0 +1,53 @@
+import { useCallback, useReducer } from 'react';
+
+const baseURL = 'https://react-hooks-module-2ba54-default-rtdb.firebaseio.com';
+
+const httpReducer = (httpState, action) => {
+  switch(action.type){
+    case 'SEND': 
+      return { loading: true, error: null, data: null };
+    case 'RESPONSE':
+      return { ...httpState, loading: false, data: action.data };
+    case 'ERROR': 
+      return { loading: false, error: action.error };
+    case 'CLEAR':
+      return { ...httpState, error: null };
+    default: 
+      throw new Error('Should not be reached!');
+  }
+}
+
+const useHttp = () => {
+  const [ httpState, dispatchHttp ] = useReducer(httpReducer, { 
+    loading: false, 
+    error: null,
+    data: null
+  });
+
+  const sendRequest = useCallback((url, method, body) => {
+    dispatchHttp({ type: 'SEND', })
+    fetch (`${baseURL}${url}`, {
+      method, 
+      body,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => {
+      return res.json();
+    }).then(data => {
+      dispatchHttp({ type: 'RESPONSE', data });
+    }).catch(error => {
+      dispatchHttp({ type: 'ERROR', error: error.message });
+    });
+  });
+
+  return {
+    isLoading: httpState.loading,
+    data: httpState.data,
+    error: httpState.error,
+    sendRequest
+  };
+};
+
+export default useHttp;
