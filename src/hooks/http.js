@@ -5,9 +5,9 @@ const baseURL = 'https://react-hooks-module-2ba54-default-rtdb.firebaseio.com';
 const httpReducer = (httpState, action) => {
   switch(action.type){
     case 'SEND': 
-      return { loading: true, error: null, data: null };
+      return { loading: true, error: null, data: null, extra: null, identifier: action.identifier };
     case 'RESPONSE':
-      return { ...httpState, loading: false, data: action.data };
+      return { ...httpState, loading: false, data: action.data, extra: action.extra };
     case 'ERROR': 
       return { loading: false, error: action.error };
     case 'CLEAR':
@@ -21,11 +21,13 @@ const useHttp = () => {
   const [ httpState, dispatchHttp ] = useReducer(httpReducer, { 
     loading: false, 
     error: null,
-    data: null
+    data: null,
+    extra: null,
+    identifier: null
   });
 
-  const sendRequest = useCallback((url, method, body) => {
-    dispatchHttp({ type: 'SEND', })
+  const sendRequest = useCallback((url, method, body, extra, identifier) => {
+    dispatchHttp({ type: 'SEND', identifier })
     fetch (`${baseURL}${url}`, {
       method, 
       body,
@@ -40,13 +42,15 @@ const useHttp = () => {
     }).catch(error => {
       dispatchHttp({ type: 'ERROR', error: error.message });
     });
-  });
+  }, []);
 
   return {
     isLoading: httpState.loading,
     data: httpState.data,
     error: httpState.error,
-    sendRequest
+    sendRequest,
+    reqExtra: httpState.extra,
+    reqIdentifier: httpState.identifier
   };
 };
 

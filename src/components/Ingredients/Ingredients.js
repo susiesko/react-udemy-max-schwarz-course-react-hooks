@@ -21,28 +21,44 @@ const ingredientReducer = (currentIngredients, action) => {
 
 const Ingredients = () => {
   const [ userIngredients, dispatch ] = useReducer(ingredientReducer, []);
-  const { isLoading, data, error, sendRequest } = useHttp();
+  const { isLoading, data, error, sendRequest, reqExtra, reqIdentifier } = useHttp();
 
   useEffect(() => {
-  }, [userIngredients]);
+    if (!isLoading && !error && reqIdentifier === 'REMOVE_INGREDIENT') {
+      dispatch({type: 'DELETE', id: reqExtra});
+    } else if (!isLoading && !error && reqIdentifier === 'ADD_INGREDIENT') {
+      dispatch({
+        type: 'ADD',
+        ingredient: { id: data.name, ...reqExtra }
+      })      
+    }
+  }, [data, reqExtra, reqIdentifier, isLoading]);
   
   const addIngredientHandler = useCallback(ingredient => {
-    //dispatchHttp({ type: 'SEND' });
-    sendRequest(`/ingredients.json`, 'POST', JSON.stringify(ingredient));
-  }, [sendRequest]);
-
-  const removeIngredientHandler = useCallback(id => {
-    sendRequest(`/ingredients/${id}.json`, 'DELETE');
-    //dispatchHttp({ type: 'SEND' });
-  }, [sendRequest]);
+    sendRequest(
+      `/ingredients.json`, 
+      'POST', 
+      JSON.stringify(ingredient),
+      ingredient,
+      'ADD_INGREDIENT'
+      );
+    }, [sendRequest]);
+    
+    const removeIngredientHandler = useCallback(id => {
+      sendRequest(
+        `/ingredients/${id}.json`, 
+        'DELETE', 
+        null, 
+        id, 
+        'REMOVE_INGREDIENT'
+      );
+        }, [sendRequest]);
 
   const filteredIngredientsHandler = useCallback(filteredIngredients => {
     dispatch({type: 'SET', ingredients: filteredIngredients});
-    //setUserIngredients(filteredIngredients);
   }, []);
 
   const clearError = useCallback(() => {
-    //dispatchHttp({ type: 'CLEAR' });
   }, [])
 
   const ingredientList = useMemo(() => {
