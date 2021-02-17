@@ -47,21 +47,6 @@ const useHttp = () => {
     });
   }, []);
 
-  
-        
-  .then(response => response.json())
-  .then(data => {
-    const loadedIngredients = [];
-    for (const key in data) {
-      loadedIngredients.push({
-        id: key,
-        title: data[key].title,
-        amount: data[key].amount
-      })
-    }
-    onLoadIngredients(loadedIngredients);
-  });
-
   return {
     isLoading: httpState.loading,
     data: httpState.data,
