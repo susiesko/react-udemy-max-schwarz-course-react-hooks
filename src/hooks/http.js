@@ -1,6 +1,13 @@
 import { useCallback, useReducer } from 'react';
 
 const baseURL = 'https://react-hooks-module-2ba54-default-rtdb.firebaseio.com';
+const initialState = { 
+  loading: false, 
+  error: null,
+  data: null,
+  extra: null,
+  identifier: null
+};
 
 const httpReducer = (httpState, action) => {
   switch(action.type){
@@ -11,20 +18,16 @@ const httpReducer = (httpState, action) => {
     case 'ERROR': 
       return { loading: false, error: action.error };
     case 'CLEAR':
-      return { ...httpState, error: null };
+      return initialState;
     default: 
       throw new Error('Should not be reached!');
   }
 }
 
 const useHttp = () => {
-  const [ httpState, dispatchHttp ] = useReducer(httpReducer, { 
-    loading: false, 
-    error: null,
-    data: null,
-    extra: null,
-    identifier: null
-  });
+  const [ httpState, dispatchHttp ] = useReducer(httpReducer, initialState);
+
+  const clear = useCallback(() => dispatchHttp({ type: 'CLEAR' }), []);
 
   const sendRequest = useCallback((url, method, body, extra, identifier) => {
     dispatchHttp({ type: 'SEND', identifier })
@@ -38,11 +41,26 @@ const useHttp = () => {
     .then(res => {
       return res.json();
     }).then(data => {
-      dispatchHttp({ type: 'RESPONSE', data });
+      dispatchHttp({ type: 'RESPONSE', data, extra });
     }).catch(error => {
       dispatchHttp({ type: 'ERROR', error: error.message });
     });
   }, []);
+
+  
+        
+  .then(response => response.json())
+  .then(data => {
+    const loadedIngredients = [];
+    for (const key in data) {
+      loadedIngredients.push({
+        id: key,
+        title: data[key].title,
+        amount: data[key].amount
+      })
+    }
+    onLoadIngredients(loadedIngredients);
+  });
 
   return {
     isLoading: httpState.loading,
@@ -50,7 +68,8 @@ const useHttp = () => {
     error: httpState.error,
     sendRequest,
     reqExtra: httpState.extra,
-    reqIdentifier: httpState.identifier
+    reqIdentifier: httpState.identifier,
+    clear
   };
 };
 
